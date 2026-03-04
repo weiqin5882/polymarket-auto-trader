@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymarket Auto Trader - 配置面板</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #e1e8ed;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+        }
+        .slider-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: #4a90e2;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .preview h3 {
+            margin-bottom: 15px;
+        }
+        .preview-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .preview-formula {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .btn {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #357abd;
+        }
+        .btn-secondary {
+            background: #48bb78;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        .multiplier-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Polymarket Auto Trader</h1>
+        <p class="subtitle">自动交易配置面板</p>
+        
+        <div class="info-box">
+            <strong>当前状态：</strong>
+            <span class="status status-active" id="system-status">运行中（模拟模式）</span>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ 基础设置</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>自动交易开关</label>
+                    <select id="enabled">
+                        <option value="true">启用</option>
+                        <option value="false">禁用</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>金额模式</label>
+                    <select id="mode" onchange="switchMode()">
+                        <option value="adaptive">自适应（推荐）</option>
+                        <option value="fixed">固定金额</option>
+                        <option value="percentage">账户百分比</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="adaptive-config">
+            <h2>💰 自适应金额配置</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>基础金额 (USD)</label>
+                    <input type="number" id="base-amount" value="500" min="100" step="100">
+                </div>
+                <div class="form-group">
+                    <label>最大金额 (USD)</label>
+                    <input type="number" id="max-amount" value="2000" min="500" step="100">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>最小金额 (USD)</label>
+                <input type="number" id="min-amount" value="100" min="50" step="50">
+            </div>
+
+            <h3 style="margin-top: 25px; margin-bottom: 15px; font-size: 16px;">信心度乘数</h3>
+            <div class="multiplier-grid">
+                <div class="form-group">
+                    <label>低信心 (&lt;60%)</label>
+                    <input type="number" id="mult-low" value="0.5" min="0.1" max="1" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>中等信心 (60-80%)</label>
+                    <input type="number" id="mult-medium" value="1.0" min="0.5" max="1.5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>高信心 (80-90%)</label>
+                    <input type="number" id="mult-high" value="1.5" min="1" max="2" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>极高信心 (≥90%)</label>
+                    <input type="number" id="mult-very-high" value="2.0" min="1.5" max="3" step="0.1">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 实时预览</h2>
+            <div class="form-group">
+                <label>测试信心度: <span class="slider-value" id="confidence-display">75%</span></label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="test-confidence" 
+                           min="0" max="100" value="75" oninput="updatePreview()">
+                </div>
+            </div>
+            
+            <div class="preview">
+                <h3>预估交易金额</h3>
+                <div class="preview-value" id="preview-amount">$750</div>
+                <div class="preview-formula" id="preview-formula">
+                    500 × 1.0 × 1.5 = $750
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛡️ 风控设置</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>最大持仓 (USD)</label>
+                    <input type="number" id="max-position" value="10000" min="1000" step="1000">
+                </div>
+                <div class="form-group">
+                    <label>单日最大亏损 (USD)</label>
+                    <input type="number" id="max-daily-loss" value="500" min="100" step="100">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>单笔最大订单 (USD)</label>
+                <input type="number" id="max-order" value="1000" min="100" step="100">
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="saveConfig()">💾 保存配置</button>
+            <button class="btn btn-secondary" onclick="previewCalculation()">👁️ 预览计算</button>
+        </div>
+    </div>
+
+    <script>
+        // 配置数据
+        let currentConfig = {};
+
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const resp = await fetch('/api/config');
+                const data = await resp.json();
+                if (data.success) {
+                    currentConfig = data.config;
+                    fillForm(data.config);
+                }
+            } catch (e) {
+                console.error('加载配置失败:', e);
+            }
+        }
+
+        // 填充表单
+        function fillForm(config) {
+            const at = config.auto_trading || {};
+            document.getElementById('enabled').value = String(at.enabled || true);
+            document.getElementById('mode').value = at.mode || 'adaptive';
+            
+            if (at.adaptive) {
+                document.getElementById('base-amount').value = at.adaptive.base_amount_usd || 500;
+                document.getElementById('max-amount').value = at.adaptive.max_amount_usd || 2000;
+                document.getElementById('min-amount').value = at.adaptive.min_amount_usd || 100;
+                
+                const mult = at.adaptive.confidence_multiplier || {};
+                document.getElementById('mult-low').value = mult.low || 0.5;
+                document.getElementById('mult-medium').value = mult.medium || 1.0;
+                document.getElementById('mult-high').value = mult.high || 1.5;
+                document.getElementById('mult-very-high').value = mult['very_high'] || 2.0;
+            }
+            
+            const risk = config.risk || {};
+            document.getElementById('max-position').value = risk.max_position_usd || 10000;
+            document.getElementById('max-daily-loss').value = risk.max_daily_loss_usd || 500;
+            document.getElementById('max-order').value = risk.max_order_size_usd || 1000;
+        }
+
+        // 构建配置对象
+        function buildConfig() {
+            return {
+                auto_trading: {
+                    enabled: document.getElementById('enabled').value === 'true',
+                    mode: document.getElementById('mode').value,
+                    adaptive: {
+                        base_amount_usd: parseFloat(document.getElementById('base-amount').value),
+                        max_amount_usd: parseFloat(document.getElementById('max-amount').value),
+                        min_amount_usd: parseFloat(document.getElementById('min-amount').value),
+                        confidence_multiplier: {
+                            low: parseFloat(document.getElementById('mult-low').value),
+                            medium: parseFloat(document.getElementById('mult-medium').value),
+                            high: parseFloat(document.getElementById('mult-high').value),
+                            very_high: parseFloat(document.getElementById('mult-very-high').value)
+                        }
+                    }
+                },
+                risk: {
+                    max_position_usd: parseFloat(document.getElementById('max-position').value),
+                    max_daily_loss_usd: parseFloat(document.getElementById('max-daily-loss').value),
+                    max_order_size_usd: parseFloat(document.getElementById('max-order').value)
+                }
+            };
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const confidence = document.getElementById('test-confidence').value;
+            document.getElementById('confidence-display').textContent = confidence + '%';
+            
+            const base = parseFloat(document.getElementById('base-amount').value);
+            const confVal = confidence / 100;
+            
+            let mult = 1.0;
+            if (confVal < 0.6) mult = parseFloat(document.getElementById('mult-low').value);
+            else if (confVal < 0.8) mult = parseFloat(document.getElementById('mult-medium').value);
+            else if (confVal < 0.9) mult = parseFloat(document.getElementById('mult-high').value);
+            else mult = parseFloat(document.getElementById('mult-very-high').value);
+            
+            const amount = Math.round(base * mult);
+            const maxAmount = parseFloat(document.getElementById('max-amount').value);
+            const finalAmount = Math.min(amount, maxAmount);
+            
+            document.getElementById('preview-amount').textContent = '$' + finalAmount;
+            document.getElementById('preview-formula').textContent = 
+                `${base} × ${mult} = $${amount} → 限制后 $${finalAmount}`;
+        }
+
+        // 保存配置
+        async function saveConfig() {
+            const config = buildConfig();
+            try {
+                const resp = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(config)
+                });
+                const data = await resp.json();
+                alert(data.success ? '✅ 配置已保存！' : '❌ 保存失败: ' + data.error);
+            } catch (e) {
+                alert('❌ 网络错误: ' + e.message);
+            }
+        }
+
+        // 预览计算
+        async function previewCalculation() {
+            const config = buildConfig();
+            const confidence = document.getElementById('test-confidence').value / 100;
+            
+            try {
+                const resp = await fetch('/api/config/preview', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        config: config,
+                        confidence: confidence,
+                        strategy: 'UnusualVolume',
+                        account_balance: 10000
+                    })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    document.getElementById('preview-amount').textContent = '$' + data.preview.final_amount;
+                    document.getElementById('preview-formula').textContent = data.preview.formula;
+                }
+            } catch (e) {
+                console.error('预览失败:', e);
+            }
+        }
+
+        // 切换模式
+        function switchMode() {
+            const mode = document.getElementById('mode').value;
+            document.getElementById('adaptive-config').style.display = 
+                mode === 'adaptive' ? 'block' : 'none';
+        }
+
+        // 初始化
+        loadConfig();
+        updatePreview();
+    </script>
+</body>
+</html>
