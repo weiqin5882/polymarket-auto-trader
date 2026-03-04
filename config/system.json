@@ -1,0 +1,88 @@
+{
+  "system": {
+    "name": "Polymarket Auto Trader",
+    "version": "1.0.0",
+    "update_interval": 30,
+    "analysis_interval": 60,
+    "max_concurrent_trades": 5,
+    "log_level": "INFO"
+  },
+  
+  "risk": {
+    "max_total_exposure": 10000,
+    "max_single_trade": 1000,
+    "max_open_positions": 10,
+    "stop_loss_pct": 0.15,
+    "take_profit_pct": 0.30,
+    "max_daily_loss": 500
+  },
+  
+  "auto_trading": {
+    "enabled": true,
+    "mode": "adaptive",
+    "adaptive": {
+      "base_amount_usd": 500,
+      "max_amount_usd": 2000,
+      "min_amount_usd": 100,
+      "confidence_multiplier": {
+        "low": 0.5,
+        "medium": 1.0,
+        "high": 1.5,
+        "very_high": 2.0
+      },
+      "strategy_weights": {
+        "UnusualVolumeDetector": 1.0,
+        "DutchBookArbitrage": 1.2,
+        "AdvancedArbitrage": 1.0,
+        "MarketMaking": 0.8
+      }
+    },
+    "fixed": {
+      "amount_usd": 500
+    },
+    "percentage": {
+      "percent_of_balance": 2.0,
+      "max_amount_usd": 2000,
+      "min_amount_usd": 100
+    }
+  },
+  
+  "strategies": {
+    "advanced_arbitrage": {
+      "enabled": true,
+      "min_profit": 0.02,
+      "max_slippage": 0.01,
+      "priority": 1
+    },
+    "unusual_volume": {
+      "enabled": true,
+      "max_daily_volume": 50000,
+      "min_spike_ratio": 3.0,
+      "min_buy_ratio": 0.70,
+      "max_price_change": 0.05,
+      "priority": 2
+    },
+    "market_making": {
+      "enabled": false,
+      "spread_target": 0.02,
+      "max_position": 5000,
+      "rebate_min": 0.002,
+      "priority": 3
+    }
+  },
+  
+  "execution": {
+    "max_slippage_bps": 50,
+    "order_timeout_seconds": 30,
+    "fill_timeout_seconds": 300,
+    "use_twap": false,
+    "max_retries": 3,
+    "max_concurrent_orders": 5
+  },
+  
+  "filters": {
+    "min_liquidity": 10000,
+    "max_spread": 0.05,
+    "min_volume_24h": 5000
+  }
+}
